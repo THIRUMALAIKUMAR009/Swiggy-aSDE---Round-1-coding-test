@@ -1,0 +1,75 @@
+public class Player {
+    private int health;
+    private int strength;
+    private int attack;
+
+    public Player(int health, int strength, int attack) {
+        this.health = health;
+        this.strength = strength;
+        this.attack = attack;
+    }
+
+    public int rollDice() {
+        return (int) (Math.random() * 6) + 1;
+    }
+
+    public int getHealth() {
+        return health;
+    }
+
+    public void reduceHealth(int damage) {
+        health -= damage;
+        if (health < 0) {
+            health = 0;
+        }
+    }
+
+    public int calculateDamage(int diceRoll) {
+        return attack * diceRoll;
+    }
+
+    public int calculateDefense(int diceRoll) {
+        return strength * diceRoll;
+    }
+}
+public class Arena {
+    private Player playerA;
+    private Player playerB;
+
+    public Arena(Player playerA, Player playerB) {
+        this.playerA = playerA;
+        this.playerB = playerB;
+    }
+
+    public void fight() {
+        Player attacker = playerA.getHealth() < playerB.getHealth() ? playerA : playerB;
+        Player defender = attacker == playerA ? playerB : playerA;
+
+        while (playerA.getHealth() > 0 && playerB.getHealth() > 0) {
+            int attackRoll = attacker.rollDice();
+            int defenseRoll = defender.rollDice();
+
+            int damage = attacker.calculateDamage(attackRoll);
+            int defense = defender.calculateDefense(defenseRoll);
+
+            int actualDamage = Math.max(0, damage - defense);
+
+            defender.reduceHealth(actualDamage);
+            System.out.println(attacker.getClass().getSimpleName() + " attacks with " + attackRoll +
+                    " and deals " + actualDamage + " damage to " + defender.getClass().getSimpleName());
+            Player temp = attacker;
+            attacker = defender;
+            defender = temp;
+        }
+        System.out.println("Game over. Winner is: " + (playerA.getHealth() > 0 ? "Player A" : "Player B"));
+    }
+}
+public class Main {
+    public static void main(String[] args) {
+        Player playerA = new Player(50, 5, 10);
+        Player playerB = new Player(100, 10, 5);
+
+        Arena arena = new Arena(playerA, playerB);
+        arena.fight();
+    }
+}
